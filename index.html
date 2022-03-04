@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="main-min.css" rel="stylesheet" />
+    <script src="https://unpkg.com/vue@3"></script>
+    <title>LMC Emulator</title>
+  </head>
+  <body>
+    <div id="app">
+      <div class="container mx-auto">
+        <div class="flex items-center">
+          <h1 class="text-2xl font-bold py-8 text-neutral-700">
+            <abbr title="Little Man Computer">LMC</abbr> Emulator
+          </h1>
+          <div class="flex gap-2 mx-4 items-center">
+            <button
+              @click="[isPlaying ? pause : play]"
+              class="px-4 py-2 transition-all hover:shadow-lg active:shadow-md rounded-md hover:bg-blue-600 active:bg-blue-500 bg-blue-500 font-bold text-white"
+            >
+              <template v-if="!isPlaying">▶ Play</template>
+              <template v-else>⏸ Pause</template>
+            </button>
+            <button
+              @click="nextStep"
+              class="px-4 py-2 transition-all hover:shadow-lg active:shadow-md rounded-md hover:bg-blue-600 active:bg-blue-500 bg-blue-500 font-bold text-white"
+            >
+              ⏭ Step
+            </button>
+            <button
+              @click="stop"
+              class="px-4 py-2 transition-all hover:shadow-lg active:shadow-md rounded-md hover:bg-red-600 active:bg-red-500 bg-red-500 font-bold text-white"
+            >
+              ⏹ Stop
+            </button>
+            <label class="mx-2 font-bold">
+              Execution Speed (ms)
+              <input
+                class="ml-2 px-4 py-2 rounded-md bg-slate-100 px-3 shadow-inner font-bold w-fit"
+                v-model="executionSpeed"
+            /></label>
+          </div>
+        </div>
+        <div class="grid gap-4 grid-cols-3">
+          <div class="flex flex-col">
+            <div class="flex gap-2">
+              <h2 class="text-xl pb-2 font-semibold">Instructions</h2>
+              <select class="rounded-md h-8 px-2" v-model="selected">
+                <option disabled value="">Templates</option>
+                <option value="1">Sum three values</option>
+                <option value="2">Perimeter of rectangle</option>
+                <option value="3">Largest of two numbers</option>
+                <option value="4">Increment by 2</option>
+              </select>
+            </div>
+            <textarea
+              class="rounded-md bg-slate-100 px-4 py-2 shadow-inner h-full font-mono"
+              v-model="instructions"
+            ></textarea>
+            <button
+              @click="parseInstructions"
+              class="px-4 py-2 mt-4 transition-all hover:shadow-lg active:shadow-md rounded-md hover:bg-blue-600 active:bg-blue-500 bg-blue-500 font-bold text-white"
+            >
+              Load Into Memory
+            </button>
+          </div>
+          <div>
+            <h2 class="text-xl font-semibold">Calculator</h2>
+            <div
+              class="rounded-md bg-slate-100 px-4 py-2 my-2 shadow-inner h-12 text-lg font-bold font-mono flex items-center"
+            >
+              {{calculator}}
+            </div>
+            <div class="flex flex-wrap gap-2 justify-between">
+              <div class="text-center font-mono" v-for="(cell, index) in memory" :key="index">
+                <input
+                  class="bg-gray-100 h-10 w-10 text-center block rounded-md"
+                  v-model.lazy="memory[index]"
+                  :class="[instructionPointer == index ? 'border-2 border-rose-500' : 'border-0 border-rose-500']"
+                  type="text"
+                  ref="memoryCell"
+                />
+                {{index.toString().padStart(2, '0')}}
+              </div>
+            </div>
+          </div>
+          <div>
+            <h2 class="text-xl font-semibold">Instruction Pointer</h2>
+            <input
+              min="0"
+              max="99"
+              type="number"
+              class="rounded-md bg-slate-100 shadow-inner px-4 py-3 my-2 w-full font-mono"
+              v-model="instructionPointer"
+            />
+            <h2 class="text-xl font-semibold">Output</h2>
+            <div class="rounded-md bg-slate-100 my-2 shadow-inner h-48 overflow-auto font-mono" ref="output">
+              <div
+                class="px-2 py-1 hover:bg-slate-200 even:bg-slate-50 odd:bg-slate-100"
+                v-for="(msg, index) in output"
+                :key="index"
+              >
+                {{msg}}
+              </div>
+            </div>
+            <div class="flex items-end">
+              <h2 class="text-xl font-semibold">Log</h2>
+              <label class="mx-2"><input type="checkbox" class="mx-1" v-model="shouldLog" />Stop Logging</label>
+            </div>
+            <div class="rounded-md bg-slate-100 my-2 shadow-inner h-48 overflow-auto font-mono" ref="logs">
+              <div
+                class="px-2 py-1 hover:bg-slate-200 even:bg-slate-50 odd:bg-slate-100"
+                v-for="(msg, index) in logs"
+                :key="index"
+              >
+                {{msg}}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script src="main.js"></script>
+</html>
